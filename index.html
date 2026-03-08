@@ -1,64 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset=utf-8 />
-<title>Draw a rectangular shape</title>
-</head>
-<body onload="draw();">
-<!-- <body> -->
-<canvas id="canvas" width="400" height="400"></canvas>
-<object data="https://raw.githubusercontent.com/oka96/html-playground/master/circle.html" width="500" height="500">
-</object>
-
-<script>
-function draw() {
-    var arr = [40,30,15,8,4,3];
-    var canvas = document.getElementById('canvas');
-    if (canvas.getContext) {
-        var context = canvas.getContext('2d');
-        var sx = 0, sy = 0;
-        var ex = 400, ey = 400;
-        var horizontal = true;
-        var portion = 100;
-        
-        for(var i=0; i < arr.length; i++){
-            var diff;
-            if(horizontal){
-                diff = Math.floor((ex-sx)*(arr[i]/portion));
-                context.fillStyle = "#000000";
-                context.fillRect(sx,sy,diff-1,ey);
-                let mx = mid(sx,sx+diff);
-                let my = mid(sy,ey);
-                writeText(context,arr[i],mx,my);
-                sx = sx + diff;
-                horizontal = false;
-                portion = portion - arr[i];
-            }else{
-                diff = Math.floor((ey-sy)*(arr[i]/portion));
-                context.fillStyle = "#FF0000";
-                context.fillRect(sx,sy,ex,diff-1);
-                let mx = mid(sx,ex);
-                let my = mid(sy,sy+diff);
-                writeText(context,arr[i],mx,my);
-                sy = sy + diff;
-                horizontal = true;
-                portion = portion - arr[i];
-            }
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Learning Notes</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #101728;
+      --panel-hover: #16203a;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --border: #26324a;
+      --code: #0a1222;
+      --danger: #fecaca;
     }
-}
 
-function writeText(context,text,x,y){
-    context.font = "20px Arial";
-    context.fillStyle = "green";
-    context.textAlign = "center";
-    context.fillText(text,x,y);
-}
+    * { box-sizing: border-box; }
 
-function mid(a,b){
-    return Math.floor((a+b)/2);
-}
-</script>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top right, #1f2a44, var(--bg));
+    }
 
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      border-right: 1px solid var(--border);
+      background: rgba(16, 23, 40, 0.92);
+      padding: 1.25rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.2rem;
+    }
+
+    .subtitle {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .notes-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .notes-list button {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .notes-list button:hover,
+    .notes-list button[aria-current="true"] {
+      border-color: var(--accent);
+      background: var(--panel-hover);
+    }
+
+    main {
+      padding: clamp(1rem, 3vw, 2.5rem);
+      max-width: 920px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    article {
+      background: rgba(10, 16, 30, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: clamp(1rem, 3vw, 2rem);
+      line-height: 1.7;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    article h1 { font-size: 1.9rem; margin-top: 0; }
+    article h2 { margin-top: 1.7rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+    article h3 { margin-top: 1.2rem; }
+    article p, article li { color: #d1d5db; }
+    article a { color: var(--accent); }
+
+    pre {
+      background: var(--code);
+      border: 1px solid #1f2a44;
+      border-radius: 10px;
+      padding: 0.8rem;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+    }
+
+    .message { color: var(--muted); }
+    .error { color: var(--danger); font-weight: 600; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <h1>📘 My Learning Notes</h1>
+      <p class="subtitle">Notes loaded from <code>/notes</code> markdown files.</p>
+      <ul class="notes-list" id="notes-list"></ul>
+    </aside>
+
+    <main>
+      <article id="viewer" aria-live="polite">
+        <p class="message">Loading notes…</p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    const listEl = document.getElementById("notes-list");
+    const viewerEl = document.getElementById("viewer");
+    let notesMeta = [];
+
+    function escapeHtml(input) {
+      return input
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function applyInlineMarkdown(text) {
+      return text
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    function markdownToHtml(markdown) {
+      const safe = escapeHtml(markdown).replace(/\r\n/g, "\n");
+      const lines = safe.split("\n");
+      const out = [];
+      let inCode = false;
+      let inList = false;
+
+      for (const line of lines) {
+        if (line.startsWith("```")) {
+          if (!inCode) {
+            out.push("<pre><code>");
+            inCode = true;
+          } else {
+            out.push("</code></pre>");
+            inCode = false;
+          }
+          continue;
+        }
+
+        if (inCode) {
+          out.push(line + "\n");
+          continue;
+        }
+
+        if (/^###\s+/.test(line)) {
+          if (inList) { out.push("</ul>"); inList = false; }
+          out.push(`<h3>${applyInlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`);
+          continue;
+        }
+        if (/^##\s+/.test(line)) {
+          if (inList) { out.push("</ul>"); inList = false; }
+          out.push(`<h2>${applyInlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`);
+          continue;
+        }
+        if (/^#\s+/.test(line)) {
+          if (inList) { out.push("</ul>"); inList = false; }
+          out.push(`<h1>${applyInlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`);
+          continue;
+        }
+
+        if (/^-\s+/.test(line)) {
+          if (!inList) {
+            out.push("<ul>");
+            inList = true;
+          }
+          out.push(`<li>${applyInlineMarkdown(line.replace(/^-\s+/, ""))}</li>`);
+          continue;
+        }
+
+        if (line.trim() === "") {
+          if (inList) { out.push("</ul>"); inList = false; }
+          continue;
+        }
+
+        if (inList) { out.push("</ul>"); inList = false; }
+        out.push(`<p>${applyInlineMarkdown(line)}</p>`);
+      }
+
+      if (inList) out.push("</ul>");
+      if (inCode) out.push("</code></pre>");
+      return out.join("\n");
+    }
+
+    function renderList(activeId) {
+      listEl.innerHTML = "";
+      for (const note of notesMeta) {
+        const li = document.createElement("li");
+        const button = document.createElement("button");
+        button.textContent = note.title;
+        button.setAttribute("aria-current", String(note.id === activeId));
+        button.addEventListener("click", () => {
+          location.hash = note.id;
+        });
+        li.appendChild(button);
+        listEl.appendChild(li);
+      }
+    }
+
+    async function renderNoteById(id) {
+      const active = notesMeta.find((n) => n.id === id) ?? notesMeta[0];
+      if (!active) {
+        viewerEl.innerHTML = '<p class="error">No notes found. Add markdown files under <code>notes/</code>.</p>';
+        return;
+      }
+
+      renderList(active.id);
+      document.title = `${active.title} | My Learning Notes`;
+      viewerEl.innerHTML = '<p class="message">Loading note…</p>';
+
+      try {
+        const res = await fetch(active.file);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const md = await res.text();
+        viewerEl.innerHTML = markdownToHtml(md);
+      } catch (err) {
+        viewerEl.innerHTML = `<p class="error">Could not load <code>${active.file}</code> (${escapeHtml(String(err))}).</p>`;
+      }
+    }
+
+    function route() {
+      const id = location.hash.replace("#", "");
+      renderNoteById(id);
+    }
+
+    async function init() {
+      try {
+        const res = await fetch("notes/index.json");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        notesMeta = await res.json();
+      } catch (err) {
+        viewerEl.innerHTML = `<p class="error">Failed to load <code>notes/index.json</code> (${escapeHtml(String(err))}).</p>`;
+        return;
+      }
+
+      window.addEventListener("hashchange", route);
+      route();
+    }
+
+    init();
+  </script>
 </body>
 </html>
