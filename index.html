@@ -134,6 +134,27 @@
     article h3 { margin-top: 1.2rem; }
     article p, article li { color: #d1d5db; }
     article a { color: var(--accent); }
+    article table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    article th, article td {
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    article thead th {
+      background: rgba(22, 32, 58, 0.8);
+      color: var(--text);
+    }
+    article tbody tr:nth-child(even) {
+      background: rgba(16, 23, 40, 0.35);
+    }
 
     pre {
       background: var(--code);
@@ -284,15 +305,35 @@
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
     }
 
+    function splitTableRow(line) {
+      const trimmed = line.trim();
+      const unwrapped = trimmed.replace(/^\|/, "").replace(/\|$/, "");
+      return unwrapped.split("|").map((cell) => cell.trim());
+    }
+
+    function isTableSeparator(line) {
+      const cells = splitTableRow(line);
+      return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+    }
+
     function markdownToHtml(markdown) {
       const safe = escapeHtml(markdown).replace(/\r\n/g, "\n");
       const lines = safe.split("\n");
       const out = [];
       let inCode = false;
-      let inList = false;
+      let listDepth = 0;
 
-      for (const line of lines) {
+      function closeLists(targetDepth = 0) {
+        while (listDepth > targetDepth) {
+          out.push("</ul>");
+          listDepth -= 1;
+        }
+      }
+
+      for (let i = 0; i < lines.length; i += 1) {
+        const line = lines[i];
         if (line.startsWith("```")) {
+          closeLists();
           if (!inCode) {
             out.push("<pre><code>");
             inCode = true;
@@ -308,41 +349,83 @@
           continue;
         }
 
+        const looksLikeTableRow = /^\|.*\|$/.test(line.trim());
+        const nextLine = lines[i + 1];
+        if (
+          looksLikeTableRow &&
+          typeof nextLine === "string" &&
+          /^\|.*\|$/.test(nextLine.trim()) &&
+          isTableSeparator(nextLine)
+        ) {
+          closeLists();
+          const headerCells = splitTableRow(line);
+          const bodyRows = [];
+          let rowIndex = i + 2;
+
+          while (rowIndex < lines.length && /^\|.*\|$/.test(lines[rowIndex].trim())) {
+            bodyRows.push(splitTableRow(lines[rowIndex]));
+            rowIndex += 1;
+          }
+
+          out.push("<table>");
+          out.push("<thead><tr>");
+          for (const cell of headerCells) {
+            out.push(`<th>${applyInlineMarkdown(cell)}</th>`);
+          }
+          out.push("</tr></thead>");
+          out.push("<tbody>");
+          for (const row of bodyRows) {
+            out.push("<tr>");
+            for (let col = 0; col < headerCells.length; col += 1) {
+              out.push(`<td>${applyInlineMarkdown(row[col] ?? "")}</td>`);
+            }
+            out.push("</tr>");
+          }
+          out.push("</tbody>");
+          out.push("</table>");
+          i = rowIndex - 1;
+          continue;
+        }
+
         if (/^###\s+/.test(line)) {
-          if (inList) { out.push("</ul>"); inList = false; }
+          closeLists();
           out.push(`<h3>${applyInlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`);
           continue;
         }
         if (/^##\s+/.test(line)) {
-          if (inList) { out.push("</ul>"); inList = false; }
+          closeLists();
           out.push(`<h2>${applyInlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`);
           continue;
         }
         if (/^#\s+/.test(line)) {
-          if (inList) { out.push("</ul>"); inList = false; }
+          closeLists();
           out.push(`<h1>${applyInlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`);
           continue;
         }
 
-        if (/^-\s+/.test(line)) {
-          if (!inList) {
+        const listMatch = line.match(/^(\s*)-\s+(.+)$/);
+        if (listMatch) {
+          const spaces = listMatch[1].replace(/\t/g, "  ").length;
+          const targetDepth = Math.max(1, Math.floor(spaces / 2) + 1);
+          while (listDepth < targetDepth) {
             out.push("<ul>");
-            inList = true;
+            listDepth += 1;
           }
-          out.push(`<li>${applyInlineMarkdown(line.replace(/^-\s+/, ""))}</li>`);
+          closeLists(targetDepth);
+          out.push(`<li>${applyInlineMarkdown(listMatch[2])}</li>`);
           continue;
         }
 
         if (line.trim() === "") {
-          if (inList) { out.push("</ul>"); inList = false; }
+          closeLists();
           continue;
         }
 
-        if (inList) { out.push("</ul>"); inList = false; }
+        closeLists();
         out.push(`<p>${applyInlineMarkdown(line)}</p>`);
       }
 
-      if (inList) out.push("</ul>");
+      closeLists();
       if (inCode) out.push("</code></pre>");
       return out.join("\n");
     }

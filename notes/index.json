@@ -3,5 +3,10 @@
     "id": "welcome",
     "title": "Welcome",
     "file": "notes/welcome.md"
+  },
+  {
+    "id": "keys-basics",
+    "title": "Secret vs Public/Private Key",
+    "file": "notes/keys-basics.md"
   }
 ]
