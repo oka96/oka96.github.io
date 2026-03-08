@@ -1,64 +1,362 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset=utf-8 />
-<title>Draw a rectangular shape</title>
-</head>
-<body onload="draw();">
-<!-- <body> -->
-<canvas id="canvas" width="400" height="400"></canvas>
-<object data="https://raw.githubusercontent.com/oka96/html-playground/master/circle.html" width="500" height="500">
-</object>
-
-<script>
-function draw() {
-    var arr = [40,30,15,8,4,3];
-    var canvas = document.getElementById('canvas');
-    if (canvas.getContext) {
-        var context = canvas.getContext('2d');
-        var sx = 0, sy = 0;
-        var ex = 400, ey = 400;
-        var horizontal = true;
-        var portion = 100;
-        
-        for(var i=0; i < arr.length; i++){
-            var diff;
-            if(horizontal){
-                diff = Math.floor((ex-sx)*(arr[i]/portion));
-                context.fillStyle = "#000000";
-                context.fillRect(sx,sy,diff-1,ey);
-                let mx = mid(sx,sx+diff);
-                let my = mid(sy,ey);
-                writeText(context,arr[i],mx,my);
-                sx = sx + diff;
-                horizontal = false;
-                portion = portion - arr[i];
-            }else{
-                diff = Math.floor((ey-sy)*(arr[i]/portion));
-                context.fillStyle = "#FF0000";
-                context.fillRect(sx,sy,ex,diff-1);
-                let mx = mid(sx,ex);
-                let my = mid(sy,sy+diff);
-                writeText(context,arr[i],mx,my);
-                sy = sy + diff;
-                horizontal = true;
-                portion = portion - arr[i];
-            }
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Learning Notes</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #101728;
+      --panel-hover: #16203a;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --border: #26324a;
+      --code: #0a1222;
+      --danger: #fecaca;
     }
-}
 
-function writeText(context,text,x,y){
-    context.font = "20px Arial";
-    context.fillStyle = "green";
-    context.textAlign = "center";
-    context.fillText(text,x,y);
-}
+    * { box-sizing: border-box; }
 
-function mid(a,b){
-    return Math.floor((a+b)/2);
-}
-</script>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top right, #1f2a44, var(--bg));
+    }
 
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      border-right: 1px solid var(--border);
+      background: rgba(16, 23, 40, 0.92);
+      padding: 1.25rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.2rem;
+    }
+
+    .subtitle {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .theme-picker {
+      display: grid;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+
+    .theme-picker label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .theme-picker select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.55rem 0.65rem;
+      font-size: 0.9rem;
+    }
+
+    .notes-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .notes-list button {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .notes-list button:hover,
+    .notes-list button[aria-current="true"] {
+      border-color: var(--accent);
+      background: var(--panel-hover);
+    }
+
+    main {
+      padding: clamp(1rem, 3vw, 2.5rem);
+      max-width: 920px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    article {
+      background: rgba(10, 16, 30, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: clamp(1rem, 3vw, 2rem);
+      line-height: 1.7;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    article h1 { font-size: 1.9rem; margin-top: 0; }
+    article h2 { margin-top: 1.7rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+    article h3 { margin-top: 1.2rem; }
+    article p, article li { color: var(--text); }
+    article a { color: var(--accent); }
+
+    pre {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+    }
+
+    .message { color: var(--muted); }
+    .error { color: var(--danger); font-weight: 600; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <h1>📘 My Learning Notes</h1>
+      <p class="subtitle">Notes loaded from <code>/notes</code> markdown files.</p>
+      <div class="theme-picker">
+        <label for="theme-select">Theme</label>
+        <select id="theme-select" aria-label="Select theme">
+          <option value="midnight">Midnight (Default)</option>
+          <option value="forest">Forest</option>
+          <option value="sunset">Sunset</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+      <ul class="notes-list" id="notes-list"></ul>
+    </aside>
+
+    <main>
+      <article id="viewer" aria-live="polite">
+        <p class="message">Loading notes…</p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    const listEl = document.getElementById("notes-list");
+    const viewerEl = document.getElementById("viewer");
+    const themeSelectEl = document.getElementById("theme-select");
+    let notesMeta = [];
+
+    const themes = {
+      midnight: {
+        bg: "#0b1020", panel: "#101728", panelHover: "#16203a", text: "#e5e7eb", muted: "#9ca3af", accent: "#60a5fa", border: "#26324a", code: "#0a1222", danger: "#fecaca", glow: "#1f2a44", articleBg: "rgba(10, 16, 30, 0.85)", asideBg: "rgba(16, 23, 40, 0.92)"
+      },
+      forest: {
+        bg: "#061a13", panel: "#0b241b", panelHover: "#123327", text: "#e7f9ef", muted: "#9fd2ba", accent: "#34d399", border: "#24513f", code: "#081710", danger: "#fecaca", glow: "#1c3a2f", articleBg: "rgba(7, 24, 18, 0.86)", asideBg: "rgba(11, 30, 23, 0.93)"
+      },
+      sunset: {
+        bg: "#231018", panel: "#341523", panelHover: "#482136", text: "#ffe7df", muted: "#f1b9ac", accent: "#fb7185", border: "#6c3144", code: "#2b111b", danger: "#ffe4e6", glow: "#5a2538", articleBg: "rgba(35, 16, 24, 0.86)", asideBg: "rgba(47, 18, 31, 0.93)"
+      },
+      light: {
+        bg: "#f4f7ff", panel: "#ffffff", panelHover: "#eef2ff", text: "#1f2937", muted: "#64748b", accent: "#2563eb", border: "#cbd5e1", code: "#f8fafc", danger: "#b91c1c", glow: "#dbeafe", articleBg: "rgba(255, 255, 255, 0.94)", asideBg: "rgba(255, 255, 255, 0.94)"
+      }
+    };
+
+    function applyTheme(name) {
+      const theme = themes[name] ?? themes.midnight;
+      const root = document.documentElement;
+      root.style.setProperty("--bg", theme.bg);
+      root.style.setProperty("--panel", theme.panel);
+      root.style.setProperty("--panel-hover", theme.panelHover);
+      root.style.setProperty("--text", theme.text);
+      root.style.setProperty("--muted", theme.muted);
+      root.style.setProperty("--accent", theme.accent);
+      root.style.setProperty("--border", theme.border);
+      root.style.setProperty("--code", theme.code);
+      root.style.setProperty("--danger", theme.danger);
+      document.body.style.background = `radial-gradient(circle at top right, ${theme.glow}, ${theme.bg})`;
+      document.querySelector("aside").style.background = theme.asideBg;
+      document.querySelector("article").style.background = theme.articleBg;
+      themeSelectEl.value = name in themes ? name : "midnight";
+      localStorage.setItem("notes-theme", themeSelectEl.value);
+    }
+
+    function escapeHtml(input) {
+      return input
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function applyInlineMarkdown(text) {
+      return text
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    function markdownToHtml(markdown) {
+      const safe = escapeHtml(markdown).replace(/\r\n/g, "\n");
+      const lines = safe.split("\n");
+      const out = [];
+      let inCode = false;
+      let inList = false;
+
+      for (const line of lines) {
+        if (line.startsWith("```")) {
+          if (!inCode) {
+            out.push("<pre><code>");
+            inCode = true;
+          } else {
+            out.push("</code></pre>");
+            inCode = false;
+          }
+          continue;
+        }
+
+        if (inCode) {
+          out.push(line + "\n");
+          continue;
+        }
+
+        if (/^###\s+/.test(line)) {
+          if (inList) { out.push("</ul>"); inList = false; }
+          out.push(`<h3>${applyInlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`);
+          continue;
+        }
+        if (/^##\s+/.test(line)) {
+          if (inList) { out.push("</ul>"); inList = false; }
+          out.push(`<h2>${applyInlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`);
+          continue;
+        }
+        if (/^#\s+/.test(line)) {
+          if (inList) { out.push("</ul>"); inList = false; }
+          out.push(`<h1>${applyInlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`);
+          continue;
+        }
+
+        if (/^-\s+/.test(line)) {
+          if (!inList) {
+            out.push("<ul>");
+            inList = true;
+          }
+          out.push(`<li>${applyInlineMarkdown(line.replace(/^-\s+/, ""))}</li>`);
+          continue;
+        }
+
+        if (line.trim() === "") {
+          if (inList) { out.push("</ul>"); inList = false; }
+          continue;
+        }
+
+        if (inList) { out.push("</ul>"); inList = false; }
+        out.push(`<p>${applyInlineMarkdown(line)}</p>`);
+      }
+
+      if (inList) out.push("</ul>");
+      if (inCode) out.push("</code></pre>");
+      return out.join("\n");
+    }
+
+    function renderList(activeId) {
+      listEl.innerHTML = "";
+      for (const note of notesMeta) {
+        const li = document.createElement("li");
+        const button = document.createElement("button");
+        button.textContent = note.title;
+        button.setAttribute("aria-current", String(note.id === activeId));
+        button.addEventListener("click", () => {
+          location.hash = note.id;
+        });
+        li.appendChild(button);
+        listEl.appendChild(li);
+      }
+    }
+
+    async function renderNoteById(id) {
+      const active = notesMeta.find((n) => n.id === id) ?? notesMeta[0];
+      if (!active) {
+        viewerEl.innerHTML = '<p class="error">No notes found. Add markdown files under <code>notes/</code>.</p>';
+        return;
+      }
+
+      renderList(active.id);
+      document.title = `${active.title} | My Learning Notes`;
+      viewerEl.innerHTML = '<p class="message">Loading note…</p>';
+
+      try {
+        const res = await fetch(active.file);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const md = await res.text();
+        viewerEl.innerHTML = markdownToHtml(md);
+      } catch (err) {
+        viewerEl.innerHTML = `<p class="error">Could not load <code>${active.file}</code> (${escapeHtml(String(err))}).</p>`;
+      }
+    }
+
+    function route() {
+      const id = location.hash.replace("#", "");
+      renderNoteById(id);
+    }
+
+    async function init() {
+      const savedTheme = localStorage.getItem("notes-theme") ?? "midnight";
+      applyTheme(savedTheme);
+      themeSelectEl.addEventListener("change", () => applyTheme(themeSelectEl.value));
+
+      try {
+        const res = await fetch("notes/index.json");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        notesMeta = await res.json();
+      } catch (err) {
+        viewerEl.innerHTML = `<p class="error">Failed to load <code>notes/index.json</code> (${escapeHtml(String(err))}).</p>`;
+        return;
+      }
+
+      window.addEventListener("hashchange", route);
+      route();
+    }
+
+    init();
+  </script>
 </body>
 </html>
