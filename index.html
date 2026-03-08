@@ -15,6 +15,7 @@
       --border: #26324a;
       --code: #0a1222;
       --danger: #fecaca;
+      --bg-glow: #1f2a44;
     }
 
     * { box-sizing: border-box; }
@@ -24,7 +25,7 @@
       min-height: 100vh;
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color: var(--text);
-      background: radial-gradient(circle at top right, #1f2a44, var(--bg));
+      background: radial-gradient(circle at top right, var(--bg-glow), var(--bg));
     }
 
     .layout {
@@ -86,6 +87,37 @@
       max-width: 920px;
       width: 100%;
       margin: 0 auto;
+      position: relative;
+    }
+
+    .theme-picker {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(16, 23, 40, 0.8);
+      backdrop-filter: blur(6px);
+      color: var(--text);
+    }
+
+    .theme-picker label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .theme-picker select {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 0.3rem 0.45rem;
+      font: inherit;
+      cursor: pointer;
     }
 
     article {
@@ -127,6 +159,11 @@
         border-right: none;
         border-bottom: 1px solid var(--border);
       }
+
+      .theme-picker {
+        position: static;
+        margin-bottom: 1rem;
+      }
     }
   </style>
 </head>
@@ -139,6 +176,15 @@
     </aside>
 
     <main>
+      <div class="theme-picker">
+        <label for="theme-select">Theme</label>
+        <select id="theme-select" aria-label="Select theme color">
+          <option value="midnight">Midnight</option>
+          <option value="ocean">Ocean</option>
+          <option value="forest">Forest</option>
+          <option value="sunset">Sunset</option>
+        </select>
+      </div>
       <article id="viewer" aria-live="polite">
         <p class="message">Loading notes…</p>
       </article>
@@ -148,7 +194,78 @@
   <script>
     const listEl = document.getElementById("notes-list");
     const viewerEl = document.getElementById("viewer");
+    const themeSelectEl = document.getElementById("theme-select");
     let notesMeta = [];
+    const themes = {
+      midnight: {
+        "--bg": "#0b1020",
+        "--panel": "#101728",
+        "--panel-hover": "#16203a",
+        "--text": "#e5e7eb",
+        "--muted": "#9ca3af",
+        "--accent": "#60a5fa",
+        "--border": "#26324a",
+        "--code": "#0a1222",
+        "--danger": "#fecaca",
+        "--bg-glow": "#1f2a44"
+      },
+      ocean: {
+        "--bg": "#051721",
+        "--panel": "#0a2736",
+        "--panel-hover": "#113849",
+        "--text": "#ddf4ff",
+        "--muted": "#8cb3c9",
+        "--accent": "#38bdf8",
+        "--border": "#1b4a5f",
+        "--code": "#04121a",
+        "--danger": "#fecaca",
+        "--bg-glow": "#0e3f53"
+      },
+      forest: {
+        "--bg": "#0b1a12",
+        "--panel": "#12251a",
+        "--panel-hover": "#1b3325",
+        "--text": "#e2f4e6",
+        "--muted": "#9ac8a8",
+        "--accent": "#4ade80",
+        "--border": "#2e4d39",
+        "--code": "#0a1710",
+        "--danger": "#fecaca",
+        "--bg-glow": "#24412e"
+      },
+      sunset: {
+        "--bg": "#26110f",
+        "--panel": "#3b1815",
+        "--panel-hover": "#52201c",
+        "--text": "#ffe8df",
+        "--muted": "#e3b5a7",
+        "--accent": "#fb923c",
+        "--border": "#6b322c",
+        "--code": "#220d0b",
+        "--danger": "#fecaca",
+        "--bg-glow": "#5c2620"
+      }
+    };
+
+    function applyTheme(themeName) {
+      const theme = themes[themeName] ?? themes.midnight;
+      const rootStyle = document.documentElement.style;
+      for (const [key, value] of Object.entries(theme)) {
+        rootStyle.setProperty(key, value);
+      }
+      document.body.style.background = `radial-gradient(circle at top right, ${theme["--bg-glow"]}, ${theme["--bg"]})`;
+      themeSelectEl.value = themeName in themes ? themeName : "midnight";
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem("notes-theme") || "midnight";
+      applyTheme(savedTheme);
+      themeSelectEl.addEventListener("change", (event) => {
+        const nextTheme = event.target.value;
+        applyTheme(nextTheme);
+        localStorage.setItem("notes-theme", nextTheme);
+      });
+    }
 
     function escapeHtml(input) {
       return input
@@ -272,6 +389,8 @@
     }
 
     async function init() {
+      initTheme();
+
       try {
         const res = await fetch("notes/index.json");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
