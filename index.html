@@ -3,56 +3,198 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Learning Notes</title>
+  <title>Learning Notes</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #101728;
-      --panel-hover: #16203a;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --accent: #60a5fa;
-      --border: #26324a;
-      --code: #0a1222;
-      --danger: #fecaca;
-      --bg-glow: #1f2a44;
+      --paper: #fafaf8;
+      --paper-deep: #f2f3f0;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: #ffffff;
+      --ink: #111111;
+      --ink-soft: #333333;
+      --muted: #6f6f6f;
+      --border: rgba(17, 17, 17, 0.1);
+      --border-strong: rgba(17, 17, 17, 0.18);
+      --accent: #0f4c81;
+      --accent-soft: rgba(15, 76, 129, 0.08);
+      --shadow: 0 12px 30px rgba(17, 17, 17, 0.04);
+      --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-serif: Georgia, "Times New Roman", serif;
+      --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      color: var(--text);
-      background: radial-gradient(circle at top right, var(--bg-glow), var(--bg));
+      color: var(--ink);
+      font-family: var(--font-sans);
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 32%),
+        linear-gradient(180deg, #fcfcfb 0%, var(--paper) 100%);
+      position: relative;
     }
 
-    .layout {
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::before {
+      opacity: 0.4;
+      background: linear-gradient(180deg, rgba(17, 17, 17, 0.02), transparent 18%);
+    }
+
+    body::after {
+      background: none;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-color: rgba(15, 76, 129, 0.26);
+      text-underline-offset: 0.16em;
+    }
+
+    .page-shell {
+      width: min(1280px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 1.2rem 0 4rem;
       display: grid;
-      grid-template-columns: 280px 1fr;
-      min-height: 100vh;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+      gap: clamp(1.5rem, 3vw, 2.75rem);
     }
 
-    aside {
-      border-right: 1px solid var(--border);
-      background: rgba(16, 23, 40, 0.92);
-      padding: 1.25rem;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
+    .masthead {
+      display: grid;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.2rem 0 0.85rem;
+      border-bottom: 1px solid var(--border-strong);
+      animation: rise 680ms ease both;
     }
 
-    h1 {
-      margin: 0 0 0.25rem;
-      font-size: 1.2rem;
-    }
-
-    .subtitle {
-      margin: 0 0 1rem;
+    .eyebrow,
+    .issue-kicker,
+    .article-meta {
+      margin: 0;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       color: var(--muted);
-      font-size: 0.9rem;
+    }
+
+    .site-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      line-height: 1.02;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+    }
+
+    .archive {
+      animation: rise 820ms ease both;
+    }
+
+    .left-rail {
+      display: grid;
+      gap: 0.9rem;
+      align-content: start;
+    }
+
+    .archive {
+      position: sticky;
+      top: 1rem;
+      padding: 0;
+    }
+
+    .archive-toggle {
+      display: none;
+    }
+
+    .archive-content {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .search-box {
+      margin: 0;
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .search-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.72rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .search-input::placeholder {
+      color: var(--muted);
+    }
+
+    .search-input:focus {
+      border-color: rgba(15, 76, 129, 0.36);
+      box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.08);
+    }
+
+    .search-clear {
+      padding: 0.72rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: border-color 180ms ease, background-color 180ms ease;
+    }
+
+    .search-clear:hover {
+      border-color: var(--border-strong);
+      background: #fcfcfb;
+    }
+
+    .search-status {
+      margin: 0;
+      min-height: 1.25rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    .notes-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.1rem 0 0.35rem;
     }
 
     .notes-list {
@@ -60,233 +202,546 @@
       margin: 0;
       padding: 0;
       display: grid;
-      gap: 0.5rem;
+      gap: 0.05rem;
     }
 
-    .notes-list button {
-      width: 100%;
-      text-align: left;
-      border: 1px solid var(--border);
-      color: var(--text);
-      background: var(--panel);
-      border-radius: 10px;
-      padding: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: 0.95rem;
-    }
-
-    .notes-list button:hover,
-    .notes-list button[aria-current="true"] {
-      border-color: var(--accent);
-      background: var(--panel-hover);
-    }
-
-    main {
-      padding: clamp(1rem, 3vw, 2.5rem);
-      max-width: 920px;
-      width: 100%;
-      margin: 0 auto;
-      position: relative;
-    }
-
-    .theme-picker {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.45rem 0.65rem;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: rgba(16, 23, 40, 0.8);
-      backdrop-filter: blur(6px);
-      color: var(--text);
-    }
-
-    .theme-picker label {
+    .notes-empty {
+      padding: 0.9rem 0;
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
+      line-height: 1.5;
     }
 
-    .theme-picker select {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--panel);
-      color: var(--text);
-      padding: 0.3rem 0.45rem;
-      font: inherit;
+    .note-link {
+      width: 100%;
+      border: 0;
+      border-left: 2px solid transparent;
+      background: transparent;
+      border-radius: 0;
+      padding: 0.78rem 0 0.78rem 0.8rem;
+      text-align: left;
       cursor: pointer;
+      display: grid;
+      gap: 0.2rem;
+      color: inherit;
+      transition:
+        border-color 180ms ease,
+        background-color 180ms ease,
+        color 180ms ease;
+    }
+
+    .note-link:hover {
+      border-left-color: rgba(17, 17, 17, 0.14);
+      background: rgba(17, 17, 17, 0.02);
+    }
+
+    .note-link[aria-current="true"] {
+      border-left-color: var(--accent);
+      background: rgba(15, 76, 129, 0.03);
+    }
+
+    .note-order {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .note-date {
+      display: block;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    .note-title {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 0.94rem;
+      line-height: 1.4;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .note-path {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .reading-room {
+      min-width: 0;
+      display: grid;
+      gap: 1.35rem;
+    }
+
+    .issue-card,
+    .article-shell {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .issue-card {
+      padding: clamp(1.2rem, 3vw, 1.8rem);
+      animation: rise 930ms ease both;
+    }
+
+    .issue-title {
+      margin: 0.35rem 0 0.55rem;
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      font-weight: 700;
+      letter-spacing: -0.045em;
+    }
+
+    .issue-summary {
+      margin: 0;
+      max-width: 48rem;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--ink-soft);
+    }
+
+    .issue-metrics {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .issue-metric {
+      padding: 0.42rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fbfbfa;
+      color: var(--ink-soft);
+      font-size: 0.79rem;
+      letter-spacing: 0.02em;
+    }
+
+    .article-shell {
+      position: relative;
+      overflow: hidden;
+      padding: 1rem;
+      animation: rise 1080ms ease both;
+    }
+
+    .article-shell::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border);
     }
 
     article {
-      background: rgba(10, 16, 30, 0.85);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: clamp(1rem, 3vw, 2rem);
-      line-height: 1.7;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: clamp(1rem, 3vw, 1.4rem);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.78;
+      color: var(--ink-soft);
     }
 
-    article h1 { font-size: 1.9rem; margin-top: 0; }
-    article h2 { margin-top: 1.7rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
-    article h3 { margin-top: 1.2rem; }
-    article p, article li { color: #d1d5db; }
-    article a { color: var(--accent); }
+    article > :first-child {
+      margin-top: 0;
+    }
+
+    article h1,
+    article h2,
+    article h3 {
+      color: var(--ink);
+    }
+
+    article h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 3vw, 2.7rem);
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      margin: 0 0 0.9rem;
+      font-weight: 700;
+    }
+
+    article h2 {
+      margin: 2.4rem 0 0.85rem;
+      padding-top: 0.95rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-sans);
+      font-size: 0.74rem;
+      line-height: 1.5;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    article h3 {
+      margin: 1.8rem 0 0.6rem;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    article p,
+    article ul,
+    article ol,
+    article blockquote,
+    article pre,
+    article table,
+    article hr {
+      margin: 0 0 1.25rem;
+    }
+
+    article ul,
+    article ol {
+      padding-left: 1.3rem;
+    }
+
+    article li {
+      margin-bottom: 0.5rem;
+    }
+
+    article strong {
+      color: var(--ink);
+    }
+
+    article code {
+      font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+      font-size: 0.89em;
+      background: rgba(17, 17, 17, 0.05);
+      padding: 0.15rem 0.32rem;
+      border-radius: 0.35rem;
+      color: #1f4064;
+    }
+
+    article pre {
+      padding: 1rem 1.1rem;
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #f7f8f6;
+    }
+
+    article pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    article blockquote {
+      padding: 0.2rem 0 0.2rem 1rem;
+      border-left: 2px solid rgba(15, 76, 129, 0.28);
+      color: #565656;
+    }
+
+    article hr {
+      border: 0;
+      border-top: 1px solid var(--border-strong);
+    }
+
     article table {
+      display: block;
       width: 100%;
       border-collapse: collapse;
-      margin: 1rem 0;
-      border: 1px solid var(--border);
+      overflow-x: auto;
       overflow: hidden;
-      border-radius: 10px;
-    }
-    article th, article td {
+      border-radius: 12px;
       border: 1px solid var(--border);
-      padding: 0.55rem 0.65rem;
+      background: #fff;
+    }
+
+    article th,
+    article td {
+      padding: 0.8rem 0.9rem;
       text-align: left;
       vertical-align: top;
+      border-bottom: 1px solid var(--border);
     }
+
     article thead th {
-      background: rgba(22, 32, 58, 0.8);
-      color: var(--text);
-    }
-    article tbody tr:nth-child(even) {
-      background: rgba(16, 23, 40, 0.35);
-    }
-
-    pre {
-      background: var(--code);
-      border: 1px solid #1f2a44;
-      border-radius: 10px;
-      padding: 0.8rem;
-      overflow-x: auto;
+      font-family: var(--font-sans);
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: #f7f8f6;
     }
 
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.92rem;
+    article tbody tr:last-child td {
+      border-bottom: 0;
     }
 
-    .message { color: var(--muted); }
-    .error { color: var(--danger); font-weight: 600; }
+    article img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
 
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      aside {
-        height: auto;
-        position: static;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
+    .article-meta {
+      padding: 0 clamp(1.2rem, 4vw, 2rem) 0.2rem;
+    }
+
+    .message,
+    .error {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .error {
+      color: #8e2d1f;
+      font-weight: 600;
+    }
+
+    .site-footer {
+      padding: 0.3rem 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .page-shell {
+        grid-template-columns: 1fr;
+        width: min(100% - 1.25rem, 1280px);
+        gap: 1rem;
       }
 
-      .theme-picker {
+      .archive {
         position: static;
-        margin-bottom: 1rem;
+      }
+
+      .left-rail {
+        gap: 0.75rem;
+      }
+
+      .masthead {
+        padding-bottom: 0.6rem;
+      }
+
+      .archive-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0.8rem 0.9rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        color: var(--ink);
+        cursor: pointer;
+        list-style: none;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .archive-toggle::-webkit-details-marker {
+        display: none;
+      }
+
+      .archive-toggle::after {
+        content: "+";
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .archive[open] .archive-toggle::after {
+        content: "-";
+      }
+
+      .archive-content {
+        padding-top: 0.75rem;
+      }
+
+      .issue-card {
+        padding: 1rem;
+      }
+
+      .issue-metrics {
+        gap: 0.5rem;
+      }
+
+      .article-shell {
+        padding: 0.7rem;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page-shell {
+        width: min(100% - 0.9rem, 1280px);
+        padding-top: 0.7rem;
+        padding-bottom: 2rem;
+      }
+
+      .site-title {
+        font-size: clamp(2.1rem, 14vw, 3.2rem);
+      }
+
+      .issue-title {
+        font-size: clamp(1.9rem, 11vw, 2.8rem);
+      }
+
+      .issue-card,
+      .article-shell {
+        border-radius: 14px;
+      }
+
+      .search-input-row {
+        grid-template-columns: 1fr;
+      }
+
+      .search-clear {
+        width: 100%;
+      }
+
+      .note-link {
+        padding: 0.9rem 0 0.9rem 0.75rem;
+      }
+
+      .issue-summary {
+        font-size: 0.94rem;
+        line-height: 1.58;
+      }
+
+      .issue-metric {
+        width: 100%;
+        justify-content: center;
+      }
+
+      article {
+        font-size: 0.98rem;
+        line-height: 1.72;
+        padding: 0.9rem 0.35rem 0.6rem;
+      }
+
+      article table {
+        font-size: 0.92rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .site-title {
+        font-size: 1.9rem;
+      }
+
+      .eyebrow,
+      .issue-kicker,
+      .article-meta {
+        font-size: 0.68rem;
+      }
+
+      .issue-title {
+        font-size: 1.75rem;
+      }
+
+      .note-title {
+        font-size: 0.92rem;
+      }
+
+      .note-path,
+      .search-status {
+        font-size: 0.76rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="layout">
-    <aside>
-      <h1>📘 My Learning Notes</h1>
-      <p class="subtitle">Notes loaded from <code>/notes</code> markdown files.</p>
-      <ul class="notes-list" id="notes-list"></ul>
+  <div class="page-shell">
+    <aside class="left-rail">
+      <header class="masthead">
+        <p class="eyebrow" id="archive-count">Loading notes...</p>
+        <h1 class="site-title">Learning Notes</h1>
+      </header>
+
+      <details class="archive" id="archive-panel" open>
+        <summary class="archive-toggle">Browse notes</summary>
+        <div class="archive-content">
+          <div class="search-box" role="search" aria-label="Search notes">
+            <div class="search-input-row">
+              <input
+                class="search-input"
+                id="search-input"
+                type="search"
+                placeholder="Search notes, titles, or content"
+                aria-label="Search notes"
+              />
+              <button class="search-clear" id="search-clear" type="button" hidden>Clear</button>
+            </div>
+            <p class="search-status" id="search-status">Search titles and full note contents.</p>
+          </div>
+          <div class="notes-divider" aria-hidden="true"></div>
+          <ul class="notes-list" id="notes-list"></ul>
+        </div>
+      </details>
     </aside>
 
-    <main>
-      <div class="theme-picker">
-        <label for="theme-select">Theme</label>
-        <select id="theme-select" aria-label="Select theme color">
-          <option value="midnight">Midnight</option>
-          <option value="ocean">Ocean</option>
-          <option value="forest">Forest</option>
-          <option value="sunset">Sunset</option>
-        </select>
-      </div>
-      <article id="viewer" aria-live="polite">
-        <p class="message">Loading notes…</p>
-      </article>
+    <main class="reading-room">
+      <section class="issue-card" aria-labelledby="page-title">
+        <p class="issue-kicker" id="issue-kicker">Notebook / 00</p>
+        <h2 class="issue-title" id="page-title">Loading note...</h2>
+        <p class="issue-summary" id="page-summary">
+          The article area will load the selected markdown note here.
+        </p>
+        <div class="issue-metrics">
+          <span class="issue-metric" id="note-date">Waiting for date...</span>
+          <span class="issue-metric" id="word-count">Calculating length...</span>
+          <span class="issue-metric" id="section-count">Scanning sections...</span>
+          <span class="issue-metric" id="file-name">Waiting for note...</span>
+        </div>
+      </section>
+
+      <section class="article-shell">
+        <p class="article-meta">Reading view</p>
+        <article id="viewer" aria-live="polite">
+          <p class="message">Loading notes...</p>
+        </article>
+      </section>
+
+      <footer class="site-footer">
+        Local markdown files in <code>/notes</code> power the archive and the article view.
+      </footer>
     </main>
   </div>
 
   <script>
     const listEl = document.getElementById("notes-list");
     const viewerEl = document.getElementById("viewer");
-    const themeSelectEl = document.getElementById("theme-select");
+    const archiveCountEl = document.getElementById("archive-count");
+    const archivePanelEl = document.getElementById("archive-panel");
+    const searchInputEl = document.getElementById("search-input");
+    const searchClearEl = document.getElementById("search-clear");
+    const searchStatusEl = document.getElementById("search-status");
+    const issueKickerEl = document.getElementById("issue-kicker");
+    const noteDateEl = document.getElementById("note-date");
+    const pageTitleEl = document.getElementById("page-title");
+    const pageSummaryEl = document.getElementById("page-summary");
+    const wordCountEl = document.getElementById("word-count");
+    const sectionCountEl = document.getElementById("section-count");
+    const fileNameEl = document.getElementById("file-name");
     let notesMeta = [];
-    const themes = {
-      midnight: {
-        "--bg": "#0b1020",
-        "--panel": "#101728",
-        "--panel-hover": "#16203a",
-        "--text": "#e5e7eb",
-        "--muted": "#9ca3af",
-        "--accent": "#60a5fa",
-        "--border": "#26324a",
-        "--code": "#0a1222",
-        "--danger": "#fecaca",
-        "--bg-glow": "#1f2a44"
-      },
-      ocean: {
-        "--bg": "#051721",
-        "--panel": "#0a2736",
-        "--panel-hover": "#113849",
-        "--text": "#ddf4ff",
-        "--muted": "#8cb3c9",
-        "--accent": "#38bdf8",
-        "--border": "#1b4a5f",
-        "--code": "#04121a",
-        "--danger": "#fecaca",
-        "--bg-glow": "#0e3f53"
-      },
-      forest: {
-        "--bg": "#0b1a12",
-        "--panel": "#12251a",
-        "--panel-hover": "#1b3325",
-        "--text": "#e2f4e6",
-        "--muted": "#9ac8a8",
-        "--accent": "#4ade80",
-        "--border": "#2e4d39",
-        "--code": "#0a1710",
-        "--danger": "#fecaca",
-        "--bg-glow": "#24412e"
-      },
-      sunset: {
-        "--bg": "#26110f",
-        "--panel": "#3b1815",
-        "--panel-hover": "#52201c",
-        "--text": "#ffe8df",
-        "--muted": "#e3b5a7",
-        "--accent": "#fb923c",
-        "--border": "#6b322c",
-        "--code": "#220d0b",
-        "--danger": "#fecaca",
-        "--bg-glow": "#5c2620"
-      }
-    };
-
-    function applyTheme(themeName) {
-      const theme = themes[themeName] ?? themes.midnight;
-      const rootStyle = document.documentElement.style;
-      for (const [key, value] of Object.entries(theme)) {
-        rootStyle.setProperty(key, value);
-      }
-      document.body.style.background = `radial-gradient(circle at top right, ${theme["--bg-glow"]}, ${theme["--bg"]})`;
-      themeSelectEl.value = themeName in themes ? themeName : "midnight";
-    }
-
-    function initTheme() {
-      const savedTheme = localStorage.getItem("notes-theme") || "midnight";
-      applyTheme(savedTheme);
-      themeSelectEl.addEventListener("change", (event) => {
-        const nextTheme = event.target.value;
-        applyTheme(nextTheme);
-        localStorage.setItem("notes-theme", nextTheme);
-      });
-    }
+    let currentSearchTerm = "";
+    let searchIndexReady = false;
+    const noteCache = new Map();
 
     function escapeHtml(input) {
       return input
@@ -303,6 +758,56 @@
         .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
         .replace(/\*([^*]+)\*/g, "<em>$1</em>")
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    function normalizeText(text) {
+      return text.toLowerCase().replace(/\s+/g, " ").trim();
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return "";
+      const date = new Date(`${dateString}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return dateString;
+      return new Intl.DateTimeFormat("en", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      }).format(date);
+    }
+
+    function extractSearchText(markdown) {
+      return markdown
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+        .replace(/[#>*|_-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function createSearchSnippet(text, query) {
+      if (!text) return "";
+
+      const lowerText = text.toLowerCase();
+      const terms = normalizeText(query).split(" ").filter(Boolean);
+      let matchIndex = -1;
+
+      for (const term of terms) {
+        matchIndex = lowerText.indexOf(term);
+        if (matchIndex !== -1) break;
+      }
+
+      if (matchIndex === -1) {
+        return text.length > 88 ? `${text.slice(0, 88).trim()}...` : text;
+      }
+
+      const start = Math.max(0, matchIndex - 28);
+      const end = Math.min(text.length, matchIndex + 92);
+      let snippet = text.slice(start, end).trim();
+      if (start > 0) snippet = `...${snippet}`;
+      if (end < text.length) snippet = `${snippet}...`;
+      return snippet;
     }
 
     function splitTableRow(line) {
@@ -322,17 +827,28 @@
       const out = [];
       let inCode = false;
       let listDepth = 0;
+      let listTag = "ul";
+      let paragraphLines = [];
+
+      function flushParagraph() {
+        if (!paragraphLines.length) return;
+        out.push(`<p>${applyInlineMarkdown(paragraphLines.join(" "))}</p>`);
+        paragraphLines = [];
+      }
 
       function closeLists(targetDepth = 0) {
         while (listDepth > targetDepth) {
-          out.push("</ul>");
+          out.push(`</${listTag}>`);
           listDepth -= 1;
         }
       }
 
       for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i];
+        const trimmed = line.trim();
+
         if (line.startsWith("```")) {
+          flushParagraph();
           closeLists();
           if (!inCode) {
             out.push("<pre><code>");
@@ -349,7 +865,13 @@
           continue;
         }
 
-        const looksLikeTableRow = /^\|.*\|$/.test(line.trim());
+        if (!trimmed) {
+          flushParagraph();
+          closeLists();
+          continue;
+        }
+
+        const looksLikeTableRow = /^\|.*\|$/.test(trimmed);
         const nextLine = lines[i + 1];
         if (
           looksLikeTableRow &&
@@ -357,6 +879,7 @@
           /^\|.*\|$/.test(nextLine.trim()) &&
           isTableSeparator(nextLine)
         ) {
+          flushParagraph();
           closeLists();
           const headerCells = splitTableRow(line);
           const bodyRows = [];
@@ -387,81 +910,308 @@
           continue;
         }
 
+        if (/^-{3,}$/.test(trimmed) || /^\*{3,}$/.test(trimmed)) {
+          flushParagraph();
+          closeLists();
+          out.push("<hr />");
+          continue;
+        }
+
         if (/^###\s+/.test(line)) {
+          flushParagraph();
           closeLists();
           out.push(`<h3>${applyInlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`);
           continue;
         }
+
         if (/^##\s+/.test(line)) {
+          flushParagraph();
           closeLists();
           out.push(`<h2>${applyInlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`);
           continue;
         }
+
         if (/^#\s+/.test(line)) {
+          flushParagraph();
           closeLists();
           out.push(`<h1>${applyInlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`);
           continue;
         }
 
-        const listMatch = line.match(/^(\s*)-\s+(.+)$/);
+        if (/^>\s+/.test(line)) {
+          flushParagraph();
+          closeLists();
+          out.push(`<blockquote>${applyInlineMarkdown(line.replace(/^>\s+/, ""))}</blockquote>`);
+          continue;
+        }
+
+        const listMatch = line.match(/^(\s*)([-*]|\d+\.)\s+(.+)$/);
         if (listMatch) {
+          flushParagraph();
           const spaces = listMatch[1].replace(/\t/g, "  ").length;
           const targetDepth = Math.max(1, Math.floor(spaces / 2) + 1);
+          const nextListTag = /\d+\./.test(listMatch[2]) ? "ol" : "ul";
+
+          if (listDepth && nextListTag !== listTag) {
+            closeLists();
+          }
+
           while (listDepth < targetDepth) {
-            out.push("<ul>");
+            listTag = nextListTag;
+            out.push(`<${listTag}>`);
             listDepth += 1;
           }
+
           closeLists(targetDepth);
-          out.push(`<li>${applyInlineMarkdown(listMatch[2])}</li>`);
+          listTag = nextListTag;
+          out.push(`<li>${applyInlineMarkdown(listMatch[3])}</li>`);
           continue;
         }
 
-        if (line.trim() === "") {
-          closeLists();
-          continue;
-        }
-
-        closeLists();
-        out.push(`<p>${applyInlineMarkdown(line)}</p>`);
+        paragraphLines.push(trimmed);
       }
 
+      flushParagraph();
       closeLists();
       if (inCode) out.push("</code></pre>");
       return out.join("\n");
     }
 
-    function renderList(activeId) {
+    function getNotePresentation(markdown, fallbackTitle) {
+      const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+      const titleLine = lines.find((line) => /^#\s+/.test(line));
+      const title = titleLine ? titleLine.replace(/^#\s+/, "").trim() : fallbackTitle;
+      let summary = "";
+      let inCode = false;
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (rawLine.startsWith("```")) {
+          inCode = !inCode;
+          continue;
+        }
+        if (inCode || !line || /^#/.test(line) || /^[-*]\s+/.test(line) || /^\d+\.\s+/.test(line)) {
+          continue;
+        }
+        if (/^\|.*\|$/.test(line) || /^>/.test(line)) {
+          continue;
+        }
+        summary = line;
+        break;
+      }
+
+      const cleanedMarkdown = titleLine
+        ? lines.filter((line, index) => !(index === lines.indexOf(titleLine) && /^#\s+/.test(line))).join("\n")
+        : markdown;
+
+      const words = markdown
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/[#>*`|_-]/g, " ")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean).length;
+      const sectionCount = lines.filter((line) => /^##\s+|^###\s+/.test(line)).length;
+
+      return {
+        title,
+        summary: summary || "A markdown note loaded into the long-form reading view.",
+        cleanedMarkdown,
+        words,
+        sectionCount
+      };
+    }
+
+    async function loadNote(note) {
+      if (noteCache.has(note.id)) {
+        return noteCache.get(note.id);
+      }
+
+      const pending = (async () => {
+        const res = await fetch(note.file);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const markdown = await res.text();
+        const presentation = getNotePresentation(markdown, note.title);
+        const plainText = extractSearchText(markdown);
+
+        return {
+          markdown,
+          presentation,
+          plainText,
+          normalizedText: normalizeText(`${note.title} ${note.file} ${plainText}`)
+        };
+      })().catch((error) => {
+        noteCache.delete(note.id);
+        throw error;
+      });
+
+      noteCache.set(note.id, pending);
+      return pending;
+    }
+
+    function getSearchResults() {
+      if (!currentSearchTerm) {
+        return notesMeta.map((note, index) => ({
+          ...note,
+          originalIndex: index,
+          searchSnippet: note.file
+        }));
+      }
+
+      const normalizedQuery = normalizeText(currentSearchTerm);
+      const terms = normalizedQuery.split(" ").filter(Boolean);
+
+      return notesMeta
+        .map((note, index) => {
+          const titleText = normalizeText(note.title);
+          const fileText = normalizeText(note.file);
+          const cached = noteCache.get(note.id);
+          let score = 0;
+          let snippet = note.file;
+
+          if (titleText.includes(normalizedQuery)) score += 240;
+          if (fileText.includes(normalizedQuery)) score += 90;
+
+          for (const term of terms) {
+            if (titleText.includes(term)) score += 60;
+            if (fileText.includes(term)) score += 18;
+          }
+
+          if (cached && typeof cached.then !== "function") {
+            if (cached.normalizedText.includes(normalizedQuery)) {
+              score += 50;
+              snippet = createSearchSnippet(cached.plainText, currentSearchTerm);
+            }
+
+            for (const term of terms) {
+              if (cached.normalizedText.includes(term)) score += 10;
+            }
+          }
+
+          if (score === 0) return null;
+
+          return {
+            ...note,
+            originalIndex: index,
+            searchScore: score,
+            searchSnippet: snippet
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+          if (b.searchScore !== a.searchScore) return b.searchScore - a.searchScore;
+          return a.originalIndex - b.originalIndex;
+        });
+    }
+
+    function updateSearchStatus(resultsCount) {
+      searchClearEl.hidden = !currentSearchTerm;
+
+      if (!currentSearchTerm) {
+        searchStatusEl.textContent = searchIndexReady
+          ? "Search titles and full note contents."
+          : "Loading full-text search index...";
+        return;
+      }
+
+      if (resultsCount === 0) {
+        searchStatusEl.textContent = searchIndexReady
+          ? `No results for "${currentSearchTerm}".`
+          : `No title matches for "${currentSearchTerm}" yet. Full-text indexing is still loading.`;
+        return;
+      }
+
+      searchStatusEl.textContent = searchIndexReady
+        ? `${resultsCount} result${resultsCount === 1 ? "" : "s"} for "${currentSearchTerm}". Press Enter to open the top match.`
+        : `${resultsCount} title match${resultsCount === 1 ? "" : "es"} for "${currentSearchTerm}". Full-text results are still loading.`;
+    }
+
+    function renderList(activeId, notes = getSearchResults()) {
       listEl.innerHTML = "";
-      for (const note of notesMeta) {
+
+      if (!notes.length) {
+        const li = document.createElement("li");
+        li.className = "notes-empty";
+        li.textContent = "No notes match the current search. Try a different keyword.";
+        listEl.appendChild(li);
+        return;
+      }
+
+      for (let index = 0; index < notes.length; index += 1) {
+        const note = notes[index];
         const li = document.createElement("li");
         const button = document.createElement("button");
-        button.textContent = note.title;
+        const order = document.createElement("span");
+        const date = document.createElement("span");
+        const title = document.createElement("strong");
+        const path = document.createElement("span");
+
+        button.type = "button";
+        button.className = "note-link";
         button.setAttribute("aria-current", String(note.id === activeId));
         button.addEventListener("click", () => {
           location.hash = note.id;
+          if (window.innerWidth <= 980) {
+            archivePanelEl.open = false;
+          }
         });
+
+        order.className = "note-order";
+        order.textContent = currentSearchTerm
+          ? `Match ${String(index + 1).padStart(2, "0")}`
+          : `Note ${String(note.originalIndex + 1).padStart(2, "0")}`;
+
+        date.className = "note-date";
+        date.textContent = note.date ? formatDate(note.date) : "No date";
+
+        title.className = "note-title";
+        title.textContent = note.title;
+
+        path.className = "note-path";
+        path.textContent = note.searchSnippet ?? note.file;
+
+        button.append(order, date, title, path);
         li.appendChild(button);
         listEl.appendChild(li);
       }
     }
 
     async function renderNoteById(id) {
-      const active = notesMeta.find((n) => n.id === id) ?? notesMeta[0];
+      const active = notesMeta.find((note) => note.id === id) ?? notesMeta[0];
       if (!active) {
         viewerEl.innerHTML = '<p class="error">No notes found. Add markdown files under <code>notes/</code>.</p>';
+        pageTitleEl.textContent = "No notes found";
+        pageSummaryEl.textContent = "Add a markdown file and register it in notes/index.json.";
+        noteDateEl.textContent = "No date";
+        wordCountEl.textContent = "0 words";
+        sectionCountEl.textContent = "0 sections";
+        fileNameEl.textContent = "No file loaded";
         return;
       }
 
       renderList(active.id);
-      document.title = `${active.title} | My Learning Notes`;
-      viewerEl.innerHTML = '<p class="message">Loading note…</p>';
+      updateSearchStatus(getSearchResults().length);
+      viewerEl.innerHTML = '<p class="message">Loading note...</p>';
+      fileNameEl.textContent = active.file;
 
       try {
-        const res = await fetch(active.file);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const md = await res.text();
-        viewerEl.innerHTML = markdownToHtml(md);
+        const { presentation } = await loadNote(active);
+        const noteNumber = notesMeta.findIndex((note) => note.id === active.id) + 1;
+
+        issueKickerEl.textContent = `Notebook / ${String(noteNumber).padStart(2, "0")}`;
+        noteDateEl.textContent = active.date ? formatDate(active.date) : "No date";
+        pageTitleEl.textContent = presentation.title;
+        pageSummaryEl.textContent = presentation.summary;
+        wordCountEl.textContent = `${presentation.words} words`;
+        sectionCountEl.textContent = `${presentation.sectionCount} sections`;
+        fileNameEl.textContent = active.file;
+        document.title = `${presentation.title} | Learning Notes`;
+        viewerEl.innerHTML = markdownToHtml(presentation.cleanedMarkdown);
       } catch (err) {
+        pageTitleEl.textContent = active.title;
+        pageSummaryEl.textContent = "The selected note could not be loaded.";
+        noteDateEl.textContent = active.date ? formatDate(active.date) : "No date";
+        wordCountEl.textContent = "Unavailable";
+        sectionCountEl.textContent = "Unavailable";
         viewerEl.innerHTML = `<p class="error">Could not load <code>${active.file}</code> (${escapeHtml(String(err))}).</p>`;
       }
     }
@@ -471,20 +1221,87 @@
       renderNoteById(id);
     }
 
-    async function init() {
-      initTheme();
+    function applySearch() {
+      const activeId = location.hash.replace("#", "") || notesMeta[0]?.id || "";
+      const results = getSearchResults();
+      renderList(activeId, results);
+      updateSearchStatus(results.length);
+    }
 
+    function syncResponsiveChrome() {
+      if (window.innerWidth > 980) {
+        archivePanelEl.open = true;
+      }
+    }
+
+    async function buildSearchIndex() {
+      await Promise.all(
+        notesMeta.map(async (note) => {
+          try {
+            const loaded = await loadNote(note);
+            noteCache.set(note.id, loaded);
+          } catch (_error) {
+            return null;
+          }
+          return null;
+        })
+      );
+
+      searchIndexReady = true;
+      applySearch();
+    }
+
+    function initSearch() {
+      searchInputEl.addEventListener("input", (event) => {
+        currentSearchTerm = event.target.value.trim();
+        applySearch();
+      });
+
+      searchInputEl.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          searchInputEl.value = "";
+          currentSearchTerm = "";
+          applySearch();
+          return;
+        }
+
+        if (event.key === "Enter") {
+          const [topResult] = getSearchResults();
+          if (topResult) {
+            location.hash = topResult.id;
+            if (window.innerWidth <= 980) {
+              archivePanelEl.open = false;
+            }
+          }
+        }
+      });
+
+      searchClearEl.addEventListener("click", () => {
+        searchInputEl.value = "";
+        currentSearchTerm = "";
+        searchInputEl.focus();
+        applySearch();
+      });
+    }
+
+    async function init() {
       try {
         const res = await fetch("notes/index.json");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         notesMeta = await res.json();
+        archiveCountEl.textContent = `${notesMeta.length} notes available`;
       } catch (err) {
+        archiveCountEl.textContent = "Archive unavailable";
         viewerEl.innerHTML = `<p class="error">Failed to load <code>notes/index.json</code> (${escapeHtml(String(err))}).</p>`;
         return;
       }
 
+      initSearch();
       window.addEventListener("hashchange", route);
+      window.addEventListener("resize", syncResponsiveChrome);
+      syncResponsiveChrome();
       route();
+      buildSearchIndex();
     }
 
     init();

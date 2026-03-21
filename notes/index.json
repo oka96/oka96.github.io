@@ -2,11 +2,13 @@
   {
     "id": "welcome",
     "title": "Welcome",
-    "file": "notes/welcome.md"
+    "file": "notes/welcome.md",
+    "date": "2026-03-09"
   },
   {
     "id": "keys-basics",
     "title": "Secret vs Public/Private Key",
-    "file": "notes/keys-basics.md"
+    "file": "notes/keys-basics.md",
+    "date": "2026-03-09"
   }
 ]
